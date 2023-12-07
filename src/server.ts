@@ -31,6 +31,14 @@ app.post("/movies", async (req, res) => {
     const { title, release_date, genre_id, language_id, oscar_count } = req.body;
 
     try {
+        const duplicate = await prisma.movie.findFirst({
+            where: { title: { equals: title, mode: "insensitive" } },
+        });
+
+        if(duplicate) {
+            return res.status(409).send({message: "Esse Registro ja existe!"});
+        }
+
         await prisma.movie.create({
             data: {
                 title,
@@ -43,7 +51,7 @@ app.post("/movies", async (req, res) => {
     } catch (error) {
         return res.status(500).send({ message: "Falha ao cadastrar um filme" });
     }
-    
+
     res.status(201).send();
 });
 
