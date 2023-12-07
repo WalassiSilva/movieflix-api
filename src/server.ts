@@ -36,7 +36,7 @@ app.post("/movies", async (req, res) => {
         });
 
         if(duplicate) {
-            return res.status(409).send({message: "Esse Registro ja existe!"});
+            return res.status(409).send({message: "Registro ja existente com esse título!"});
         }
 
         await prisma.movie.create({
