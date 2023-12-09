@@ -11,7 +11,7 @@ app.use(express.json());
 app.get("/", (_, res) => {
     res.send("Home page");
 });
-
+//-------------------------------
 app.get("/movies", async (_, res) => {
     // const movies = await prisma.movie.findMany();
     // const movies = await prisma.movies.findMany({where: {id: 2}});
@@ -26,7 +26,7 @@ app.get("/movies", async (_, res) => {
     });
     res.json(movies);
 });
-
+//------------------------------
 app.post("/movies", async (req, res) => {
     const { title, release_date, genre_id, language_id, oscar_count } = req.body;
 
@@ -54,7 +54,7 @@ app.post("/movies", async (req, res) => {
 
     res.status(201).send();
 });
-
+//-------------------------------
 // app.put("/movies/:id", async (req, res) => {
 //     // Pegar o id e mudar pra number
 //     const id = Number(req.params.id);
@@ -113,6 +113,106 @@ app.put("/movies/:id", async (req, res) => {
     // Rotornar o status correto informado a atualização
     res.status(200).send();
 });
+//--------------------------------
+app.delete("/movies/:id", async (req, res) => {
+    //pegar o param id como number
+    const id = Number(req.params.id);
+
+    try {
+        // Tratar erro pra id inválido
+        const movie = await prisma.movie.findUnique({ where: { id } });
+
+        if (!movie) {
+            return res.status(404).send({ message: "Id do registro não encontrado" });
+        }
+
+        // fazer o delete
+        await prisma.movie.delete({ where: { id } });
+    } catch (error) {
+        res.status(500).send({ message: "Erro ao tentar Remover o filme" });
+    }
+
+    // Mostrar status correto informando sucesso
+    res.status(200).send();
+});
+//--------------------------------
+app.get("/movies/:filter", async (req, res) => {
+    const filter = req.params.filter;
+    try {
+        let filteredMovies = await prisma.movie.findMany({
+            include: {
+                genres: true,
+                languages: true,
+            },
+            where: {
+                genres: {
+                    name: {
+                        equals: filter,
+                        mode: "insensitive",
+                    },
+                },
+            },
+        });
+
+        if (filteredMovies.length < 1) {
+            filteredMovies = await prisma.movie.findMany({
+                include: {
+                    genres: true,
+                    languages: true,
+                },
+                where: {
+                    languages: {
+                        name: {
+                            equals: filter,
+                            mode: "insensitive",
+                        },
+                    },
+                },
+            });
+        }
+        // else  {
+        //     return res.status(404).send({ message: "Filtro não encontrado" });
+        // }
+
+        return res.status(200).send(filteredMovies);
+    } catch (error) {
+        return res.status(500).send({ message: "Falha ao atualizar um filme" });
+    }
+
+});
+
+//-----------------------------------------
+/*
+app.get("/movies/:languageName", async (req, res) => {
+    const languageName = req.params.languageName;
+    console.log("language", languageName);
+
+    try {
+        const languageFilteredMovies = await prisma.movie.findMany({
+            include: {
+                genres: true, languages: true
+            },
+            where: {
+                languages: {
+                    name: {
+                        equals: languageName,
+                        mode: "insensitive"
+                    }
+                }
+            }
+        });
+        console.log(languageFilteredMovies);
+        if (languageFilteredMovies.length < 1) {
+            return res.status(404).send({ message: "Idioma não encontrado" });
+        }
+
+        return res.status(200).send(languageFilteredMovies);
+    } catch (error) {
+        return res.status(500).send({ message: "Erro ao filtrar filmes por idioma" });
+    }
+});
+*/
+//-----------------------------------------
 
 
 app.listen(port, () => {
