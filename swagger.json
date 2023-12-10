@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "MovieFlix API",
-    "description": "API responsável por gerenciar os filmes do MovieFliz",
+    "description": "API responsável por gerenciar os filmes do MovieFlix",
     "version": "1.0.0"
   },
   "paths": {
