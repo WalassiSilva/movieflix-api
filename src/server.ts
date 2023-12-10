@@ -179,7 +179,7 @@ app.get("/movies/:filter", async (req, res) => {
 
         return res.status(200).send(filteredMovies);
     } catch (error) {
-        return res.status(500).send({ message: "Falha ao atualizar um filme" });
+        return res.status(500).send({ message: "Falha ao fazer o filtro" });
     }
 
 });

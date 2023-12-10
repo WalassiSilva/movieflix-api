@@ -52,42 +52,76 @@
             }
           }
         },
-        "responses":{
-            "200": {
-                "description": "Filme atualizado com sucesso"
-            },
-            "404": {
-                "description": "Filme não encontrado"
-            },
-            "500": {
-                "description": "Erro ao atualizar filme"
-            }
-        } 
+        "responses": {
+          "200": {
+            "description": "Filme atualizado com sucesso"
+          },
+          "404": {
+            "description": "Filme não encontrado"
+          },
+          "500": {
+            "description": "Erro ao atualizar filme"
+          }
+        }
       },
       "delete": {
         "tags": ["Movie"],
         "summary": "Remover um filme",
         "parameters": [
-            {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "description": "ID do filme a ser removido",
-                "schema": {
-                    "type": "integer"
-                }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do filme a ser removido",
+            "schema": {
+              "type": "integer"
             }
+          }
         ],
         "responses": {
-            "200": {
-                "description": "Filme removido com sucesso"
-            }, 
-            "404": {
-                "description": "Id do registro não encontrado"
-            },
-            "500": {
-                "description": "Erro ao tentar Remover o filme"
+          "200": {
+            "description": "Filme removido com sucesso"
+          },
+          "404": {
+            "description": "Id do registro não encontrado"
+          },
+          "500": {
+            "description": "Erro ao tentar Remover o filme"
+          }
+        }
+      }
+    },
+    "/movies/{filter}": {
+      "get": {
+        "tags": ["Movie"],
+        "summary": "Filtrar filmes por gênero ou idioma",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "path",
+            "required": true,
+            "description": "Nome do gênero ou idioma",
+            "schema": {
+              "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Movie"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Falha ao fazer o filtro"
+          }
         }
       }
     }
