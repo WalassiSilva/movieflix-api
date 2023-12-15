@@ -262,10 +262,11 @@ app.post("/genres", async (req, res) => {
 });
 
 //------------------UPDATE GENRES-----------------------
-
 app.put("/genres/:id", async (req, res) => {
     const id = Number(req.params.id);
     const { name } = req.body;
+
+    console.log("id", id);
 
     if (!name) {
         return res.status(400).send({ message: "O nome do gênero é obrigatorio" });
@@ -327,6 +328,8 @@ app.delete("/genres/delete/:id", async (req, res) => {
         res.status(500).send({ message: "Houve um problema ao remover o gênero." });
     }
 });
+
+
 //------------------LISTEN-----------------------
 app.listen(port, () => {
     console.log(`Running in http://localhost:${port}`);
