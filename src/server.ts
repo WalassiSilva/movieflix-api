@@ -232,7 +232,35 @@ app.get("/genres", async (_, res) => {
 
 });
 
+//-----------------POST GENRES------------------------
+app.post("/genres", async (req, res) => {
+    const { name } = req.body;
+    console.log(name);
+    try {
+        const duplicate = await prisma.genre.findFirst({
+            where: { name: { equals: name, mode: "insensitive" } },
+        });
 
+        if (!name) {
+            return res.status(400).send({ message: "nome do gênero é obrigatorio" });
+        }
+        if (duplicate) {
+            return res.status(409).send({ message: "Já existe um gênero com esse titulo" });
+        }
+        if (name === "") {
+            return res.status(409).send({ message: "Nome do gênero inválido" });
+        }
+
+
+        const newGenre = await prisma.genre.create({
+            data: { name }
+        });
+        res.status(201).json(newGenre);
+    } catch (error) {
+        return res.status(500).send({ message: "Falha ao cadastrar um gênero" });
+    }
+
+});
 //------------------LISTEN-----------------------
 app.listen(port, () => {
     console.log(`Running in http://localhost:${port}`);
