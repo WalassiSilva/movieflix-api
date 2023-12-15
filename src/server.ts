@@ -14,7 +14,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get("/", (_, res) => {
     res.send("Home page");
 });
-//-------------------------------
+//---------------GET MOVIES----------------
 app.get("/movies", async (_, res) => {
     // const movies = await prisma.movie.findMany();
     // const movies = await prisma.movies.findMany({where: {id: 2}});
@@ -29,7 +29,7 @@ app.get("/movies", async (_, res) => {
     });
     res.json(movies);
 });
-//------------------------------
+//---------------POST MOVIES---------------
 app.post("/movies", async (req, res) => {
     const { title, release_date, genre_id, language_id, oscar_count } = req.body;
 
@@ -57,7 +57,7 @@ app.post("/movies", async (req, res) => {
 
     res.status(201).send();
 });
-//-------------------------------
+//---------------UPDATE MOVIES----------------
 // app.put("/movies/:id", async (req, res) => {
 //     // Pegar o id e mudar pra number
 //     const id = Number(req.params.id);
@@ -116,7 +116,7 @@ app.put("/movies/:id", async (req, res) => {
     // Rotornar o status correto informado a atualização
     res.status(200).send();
 });
-//--------------------------------
+//---------------DELETE MOVIES-----------------
 app.delete("/movies/:id", async (req, res) => {
     //pegar o param id como number
     const id = Number(req.params.id);
@@ -138,7 +138,7 @@ app.delete("/movies/:id", async (req, res) => {
     // Mostrar status correto informando sucesso
     res.status(200).send();
 });
-//--------------------------------
+//---------------FILTER MOVIES-----------------
 app.get("/movies/:filter", async (req, res) => {
     const filter = req.params.filter;
     try {
@@ -213,11 +213,27 @@ app.get("/movies/:languageName", async (req, res) => {
     } catch (error) {
         return res.status(500).send({ message: "Erro ao filtrar filmes por idioma" });
     }
+});*/
+
+
+//-----------------GET GENRES------------------------
+
+app.get("/genres", async (_, res) => {
+    try {
+        const genres = await prisma.genre.findMany({
+            orderBy: { name: "asc" }
+        });
+
+        res.json(genres);
+    }
+    catch (error) {
+        res.status(500).send({ message: "Houve um erro al buscar os gêneros" });
+    }
+
 });
-*/
-//-----------------------------------------
 
 
+//------------------LISTEN-----------------------
 app.listen(port, () => {
     console.log(`Running in http://localhost:${port}`);
 });
