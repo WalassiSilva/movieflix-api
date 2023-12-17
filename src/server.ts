@@ -27,11 +27,26 @@ app.get("/movies", async (_, res) => {
             languages: true
         }
     });
-    res.json(movies);
+
+    // Calcular total de filmes 
+    const totalMovies = movies.length;
+
+    // Calcular media da duração 
+    let totalDuration = 0;
+    for (const movie of movies) {
+        totalDuration += movie.duration;
+    }
+
+    const averageDuration = totalDuration > 0 ? totalDuration / totalMovies : 0;
+    res.json({
+        totalMovies,
+        averageDuration,
+        movies
+    });
 });
 //---------------POST MOVIES---------------
 app.post("/movies", async (req, res) => {
-    const { title, release_date, genre_id, language_id, oscar_count } = req.body;
+    const { title, release_date, genre_id, language_id, oscar_count, duration, director } = req.body;
 
     try {
         const duplicate = await prisma.movie.findFirst({
@@ -49,6 +64,8 @@ app.post("/movies", async (req, res) => {
                 genre_id,
                 language_id,
                 oscar_count,
+                duration,
+                director
             }
         });
     } catch (error) {
