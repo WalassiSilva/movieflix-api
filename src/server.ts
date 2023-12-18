@@ -15,35 +15,58 @@ app.get("/", (_, res) => {
     res.send("Home page");
 });
 //---------------GET MOVIES----------------
-app.get("/movies", async (_, res) => {
+
+app.get("/movies", async (req, res) => {
     // const movies = await prisma.movie.findMany();
     // const movies = await prisma.movies.findMany({where: {id: 2}});
-    const movies = await prisma.movie.findMany({
-        orderBy: {
-            title: "asc"
-        },
-        include: {
-            genres: true,
-            languages: true
-        }
-    });
 
-    // Calcular total de filmes 
-    const totalMovies = movies.length;
+    const { sort } = req.query;
 
-    // Calcular media da duração 
-    let totalDuration = 0;
-    for (const movie of movies) {
-        totalDuration += movie.duration;
+    let orderBy = undefined;
+    if (sort === "title") {
+        orderBy = { title: "asc" };
+    } else if (sort === "release_date") {
+        orderBy = { release_date: "asc" };
+    } else if (sort === "genre_id") {
+        orderBy = { genre_id: "desc" };
+    } else if (sort === "language_id") {
+        orderBy = { language_id: "asc" };
     }
 
-    const averageDuration = totalDuration > 0 ? totalDuration / totalMovies : 0;
-    res.json({
-        totalMovies,
-        averageDuration,
-        movies
-    });
+    try {
+        const movies = await prisma.movie.findMany({
+            orderBy,
+            include: {
+                genres: true,
+                languages: true
+            },
+        });
+
+        // Calcular total de filmes 
+        const totalMovies = movies.length;
+
+        // Calcular media da duração 
+        let totalDuration = 0;
+        for (const movie of movies) {
+            totalDuration += movie.duration!;
+        }
+
+        const averageDuration = totalDuration > 0 ? totalDuration / totalMovies : 0;
+        res.json({
+            totalMovies,
+            averageDuration,
+            movies
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Houve um problema ao buscar filmes" });
+    }
 });
+
+
+
+
 //---------------POST MOVIES---------------
 app.post("/movies", async (req, res) => {
     const { title, release_date, genre_id, language_id, oscar_count, duration, director } = req.body;
@@ -57,7 +80,7 @@ app.post("/movies", async (req, res) => {
             return res.status(409).send({ message: "Registro ja existente com esse título!" });
         }
 
-        await prisma.movie.create({
+        const movie = await prisma.movie.create({
             data: {
                 title,
                 release_date: new Date(release_date),
@@ -68,11 +91,11 @@ app.post("/movies", async (req, res) => {
                 director
             }
         });
+        res.status(201).json(movie);
     } catch (error) {
         return res.status(500).send({ message: "Falha ao cadastrar um filme" });
     }
 
-    res.status(201).send();
 });
 //---------------UPDATE MOVIES----------------
 // app.put("/movies/:id", async (req, res) => {
