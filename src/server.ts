@@ -14,6 +14,8 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get("/", (_, res) => {
     res.send("Home page");
 });
+
+
 //---------------GET MOVIES----------------
 
 app.get("/movies", async (req, res) => {
@@ -21,6 +23,8 @@ app.get("/movies", async (req, res) => {
     // const movies = await prisma.movies.findMany({where: {id: 2}});
 
     const { sort } = req.query;
+    const { language } = req.query;
+
 
     let orderBy = undefined;
     if (sort === "title") {
@@ -34,11 +38,20 @@ app.get("/movies", async (req, res) => {
     }
 
     try {
+        console.log("segundo get, ok");
         const movies = await prisma.movie.findMany({
             orderBy,
             include: {
                 genres: true,
                 languages: true
+            },
+            where: {
+                languages: {
+                    name: {
+                        equals: language,
+                        mode: "insensitive",
+                    },
+                },
             },
         });
 
@@ -65,7 +78,39 @@ app.get("/movies", async (req, res) => {
 });
 
 
+//-------------- GET MOVIES BY LANGUAGE ------------
+// app.get("/movies", async (req, res) => {
+//     const { language } = req.query;
 
+//     let where = undefined;
+//     if (language) {
+//         where = {
+//             languages: {
+//                 name: {
+//                     equals: language,
+//                     mode: "insensitive"
+//                 }
+//             }
+//         };
+//     }
+
+//     try {
+
+//         console.log("Get com sort");
+//         const movies = await prisma.movie.findMany({
+//             where: where,
+//             include: {
+//                 genres: true,
+//                 languages: true,
+//             },
+//         });
+
+//         res.json(movies);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send({ message: "Houve um problema ao buscar os filmes." });
+//     }
+// });
 
 //---------------POST MOVIES---------------
 app.post("/movies", async (req, res) => {
